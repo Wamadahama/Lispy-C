@@ -45,7 +45,7 @@ int main(int argc, char const *argv[]) {
 
 
 
-  puts ("Lispy Version 0.0.0.1");
+  puts ("Lispy Version 0.0.0.2");
   puts ("Press Ctrl+c to Exit\n");
 
   while(1) {
@@ -55,8 +55,19 @@ int main(int argc, char const *argv[]) {
     mpc_result_t r;
     if (mpc_parse("<stdin>", input, lispy, &r)) {
       /* On Success Print the AST */
-      mpc_ast_print(r.output);
-      mpc_ast_print(r.output);
+      mpc_ast_t* a = r.output;
+      mpc_ast_print(a);
+      mpc_ast_delete(r.output);
+      // printf("Tag: %s\n", a->tag);
+      // printf("Contents: %s\n", a->contents);
+      // printf("Number of children: %i\n", a->children_num);
+      //
+      // /* Get first child */
+      // mpc_ast_t* c0 = a->children[1];
+      // printf("First Child Tag %s\n", c0->tag);
+      // printf("First Child contents %s\n", c0->contents);
+      // printf("First Child Number of Children %s\n", c0->tag);
+
     } else {
       /* Otherwise Print the Error */
       mpc_err_print(r.error);
