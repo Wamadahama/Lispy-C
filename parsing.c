@@ -96,9 +96,18 @@ int main(int argc, char const *argv[]) {
   mpc_parser_t* Expr = mpc_new("expr");
   mpc_parser_t* lispy = mpc_new("lispy");
 
+  /*
+
+    If for whatever reason you decide to use add, sub, div, and mult
+    instead of + , -, /, * you can use the following regex
+
+    operator  : \"add\" | \"sub\" | \"mult\" | \"div\" ; \
+
+  */
+
   mpca_lang(MPCA_LANG_DEFAULT,
     "                                                     \
-      number    : /-?[0-9]+/ ;                            \
+      number    : /-?[0-9]+.?[0-9]*/ ;                  \
       operator  : '+' | '-' | '*' | '/' ;                 \
       expr      : <number> | '(' <operator> <expr>+ ')' ; \
       lispy     : /^/ <operator> <expr> + /$/ ;           \
@@ -119,12 +128,8 @@ int main(int argc, char const *argv[]) {
 
     if (mpc_parse("<stdin>", input, lispy, &r)) {
 
-      mpc_ast_print(r.output);
-
-      mpc_ast_t* t;
-      t = r.output;
-
       long result = eval(r.output);
+
       printf("%li\n", result );
       mpc_ast_delete(r.output);
 
