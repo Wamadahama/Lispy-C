@@ -35,11 +35,11 @@ int main(void){
 
   /* Define the grammas in the language */
   mpca_lang(MPCA_LANG_DEFAULT,
-  "                                                           \
-    number   : /-?[0-9]+/ ;                                   \
-    operator : '+' | '-' | '*' | '/' | '\%' ;                  \
-    expr     : <number> | '(' <operator> <expr>+ ')' ;        \
-    lispy    : /^/ <operator> <expr>+ /$/  ;                  \
+  "                                                                                               \
+    number   : /-?[0-9]+[.][0-9]+/ | /-?[0-9]+/ ;                                                 \
+    operator : '+' | '-' | '*' | '/' | '%' ;                                                      \
+    expr     : <number> | '(' <operator> <expr>+ ')' ;                                            \
+    lispy    : /^/ <operator> <expr>+ /$/  ;                                                      \
   ",
   Number, Operator, Expr, Lispy);
 
