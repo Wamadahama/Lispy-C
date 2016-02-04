@@ -21,16 +21,16 @@ mpc_parser_t* Doge = mpc_many(mpcf_strfold, Phrase);
 
 
 /* Natural Grammar*/
-mpc_parser_t* Adjective =   mpc_new("adjective");
-mpc_parser_t* Noun =        mpc_new("noun");
-mpc_parser_t* Phrase =      mpc_new("phrase");
-mpc_parser_t* Doge =        mpc_new("doge");
+mpc_parser_t* Adjective =   mpc_new("adjective"); 
+mpc_parser_t* Noun      =   mpc_new("noun");
+mpc_parser_t* Phrase    =   mpc_new("phrase");
+mpc_parser_t* Doge      =   mpc_new("doge");
 
 mpca_lang(MPCA_LANG_DEFAULT,
   "
-    adjective : \"wow\" | \"many\"           \
-              |  \"so\"  | \"such\";          \
-    noun      : \"lisp\" | \"language\"        \
+    adjective : \"wow\" | \"many\"              \
+              |  \"so\"  | \"such\";            \
+    noun      : \"lisp\" | \"language\"         \
               | \"book\" | \"build\" | \"c\";   \
     phrase    : <adjective> <noun>;             \
     doge      : <phrase>*;\
