@@ -12,6 +12,7 @@ long power(long base, unsigned long exp){
   return result;
 }
 
+/* Returns the smaller of two values*/
 long min(long x, long y){
   if (x < y) {
     return x;
@@ -20,6 +21,7 @@ long min(long x, long y){
   }
 }
 
+/* Returns the larger of two values */
 long max(long x, long y){
   if (x > y) {
     return x;

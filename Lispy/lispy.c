@@ -27,6 +27,61 @@ void add_history(char* unused){}
 #include <editline/history.h>
 #endif
 
+#pragma region lval_definitions
+/* lval structure used to contain what kind of evalutation something is */
+typedef struct {
+  int type;
+  long num;
+  int err;
+} lval;
+
+/* Possible lval types */
+enum { LVAL_NUM, LVAL_ERR };
+/* Possible error types */
+enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
+
+/* Create a new number type lval */
+lval lval_num(long x){
+  lval v;
+  v.type = LVAL_NUM;
+  v.num = x;
+  return v;
+}
+
+/* Create a new error type lval */
+lval lval_err(int x) {
+  lval v;
+  v.type = LVAL_ERR;
+  v.err = x;
+  return v;
+}
+
+/* Print out an lval */
+void lval_print(lval v){
+  switch (v.type) {
+    /* If its a number then print the number and exit */
+    case LVAL_NUM: printf("%li\n", v.num); break;
+
+    /* If its an error then print out what error it is */
+    case LVAL_ERR:
+      if (v.err == LERR_DIV_ZERO) {
+        printf("%s\n", "Error: Division By Zero!");
+      }
+      if (v.err == LERR_BAD_OP) {
+        printf("%s\n", "Error: Invalid Operator!");
+      }
+      if (v.err == LERR_BAD_NUM) {
+        printf("%s\n", "Error: Invalid Number!");
+      }
+
+      break;
+   }
+}
+
+#pragma endregion lval_definitions
+
+
+#pragma region evaluation
 /*Evalutate the operators*/
 long eval_op(long x, char* op, long y){
   if(strcmp(op, "+") == 0) { return x + y;}
@@ -41,8 +96,10 @@ long eval_op(long x, char* op, long y){
 }
 
 
+
 /* Used to evalute input */
 long eval(mpc_ast_t* t){
+
   /* IF tagged as number return it directly. */
   /* Str str is like searching for a substring*/
 
@@ -65,6 +122,7 @@ long eval(mpc_ast_t* t){
   return x;
 }
 
+#pragma endregion evalutaion
 
 int main(void){
 
