@@ -31,14 +31,14 @@ void add_history(char* unused){}
 /* lval structure used to contain what kind of evalutation something is */
 typedef struct {
   int type;
-  long num;
+  double num;
   int err;
 } lval;
 
 /* Possible lval types */
 enum { LVAL_NUM, LVAL_ERR };
 /* Possible error types */
-enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM };
+enum { LERR_DIV_ZERO, LERR_BAD_OP, LERR_BAD_NUM, LERR_MODULO_ERR };
 
 /* Create a new number type lval */
 lval lval_num(long x){
@@ -65,53 +65,71 @@ void lval_print(lval v){
     /* If its an error then print out what error it is */
     case LVAL_ERR:
       if (v.err == LERR_DIV_ZERO) {
-        printf("%s\n", "Error: Division By Zero!");
+        printf("%s", "Error: Division By Zero!");
       }
       if (v.err == LERR_BAD_OP) {
-        printf("%s\n", "Error: Invalid Operator!");
+        printf("%s", "Error: Invalid Operator!");
       }
       if (v.err == LERR_BAD_NUM) {
-        printf("%s\n", "Error: Invalid Number!");
+        printf("%s", "Error: Invalid Number!");
+      }
+
+      if (v.err == LERR_MODULO_ERR) {
+        printf("%s", "Modulus division error!");
       }
 
       break;
    }
 }
 
+void lval_println(lval v){ lval_print(v); putchar('\n'); }
+
 #pragma endregion lval_definitions
 
 
 #pragma region evaluation
 /*Evalutate the operators*/
-long eval_op(long x, char* op, long y){
-  if(strcmp(op, "+") == 0) { return x + y;}
-  if(strcmp(op, "-") == 0) { return x - y;}
-  if(strcmp(op, "*") == 0) { return x * y;}
-  if(strcmp(op, "/") == 0) { return x / y;}
-  if(strcmp(op, "%") == 0) { return x % y;}
-  if(strcmp(op, "^") == 0) { return power(x, y); }
-  if(strcmp(op, "min") == 0) { return min(x, y);}
-  if(strcmp(op, "max") == 0) { return max(x, y);}
-  return 0;
+lval eval_op(lval x, char* op, lval y){
+
+  if (x.type == LVAL_ERR) { return x; }
+  if (y.type == LVAL_ERR) { return y; }
+
+  if(strcmp(op, "+") == 0) { return lval_num(x.num + y.num);}
+  if(strcmp(op, "-") == 0) { return lval_num(x.num - y.num);}
+  if(strcmp(op, "*") == 0) { return lval_num(x.num * y.num);}
+  if(strcmp(op, "/") == 0) {
+    return y.num == 0 ? lval_err(LERR_DIV_ZERO) : lval_num(x.num / y.num);
+  }
+  if(strcmp(op, "%") == 0) {
+    return lval_num((x_val % y_val));
+   }
+  if(strcmp(op, "^") == 0) { return lval_num(power(x.num, y.num)); }
+  if(strcmp(op, "min") == 0) { return lval_num(min(x.num, y.num)); }
+  if(strcmp(op, "max") == 0) { return lval_num(max(x.num, y.num)); }
+
+  // No evalulation occured then print out that it's a bad operator
+  return lval_err(LERR_BAD_OP);
 }
 
 
 
 /* Used to evalute input */
-long eval(mpc_ast_t* t){
+lval eval(mpc_ast_t* t){
 
   /* IF tagged as number return it directly. */
   /* Str str is like searching for a substring*/
 
   if (strstr(t->tag, "number")) {
-    return atoi(t->contents);
+    errno = 0;
+    long x = strtol(t->contents, NULL, 10);
+    return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
   }
 
   /* The operator is always the second child*/
   char* op = t->children[1]->contents;
 
   /* Store the third child in 'x' */
-  long x = eval(t->children[2]);
+  lval x = eval(t->children[2]);
 
   int i = 3;
   while (strstr(t->children[i]->tag, "expr")){
@@ -158,8 +176,8 @@ int main(void){
       if (mpc_parse("<stdin>", input, Lispy, &r)) {
 
         /* Call the exalutaion function */
-        long result = eval(r.output);
-        printf("%li\n", result);
+        lval result = eval(r.output);
+        lval_println(result);
         mpc_ast_delete(r.output);
 
       } else {
